@@ -11,6 +11,7 @@ import pe.edu.upeu.gestion_pedidos.dto.AuthResponseDTO;
 import pe.edu.upeu.gestion_pedidos.dto.LoginRequestDTO;
 import pe.edu.upeu.gestion_pedidos.dto.UserDTO;
 import pe.edu.upeu.gestion_pedidos.entity.User;
+import pe.edu.upeu.gestion_pedidos.enums.Role;
 import pe.edu.upeu.gestion_pedidos.repository.UserRepository;
 import pe.edu.upeu.gestion_pedidos.service.JwtService;
 import pe.edu.upeu.gestion_pedidos.service.UserService;
@@ -41,6 +42,7 @@ public class AuthController {
         newUser.setEmail(request.getEmail());
         newUser.setPasswordHash(passwordEncriptada);
         newUser.setFullName("Usuario Nuevo");
+        newUser.setRole(Role.USER);
 
         return ResponseEntity.ok(userRepository.save(newUser));
     }
@@ -51,7 +53,8 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        String token = jwtService.generateToken(user.getId(), user.getEmail());
+        String role = user.getRole() != null ? user.getRole().name() : "USER";
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
         return ResponseEntity.ok(AuthResponseDTO.builder()
                 .token(token)
                 .userId(user.getId())

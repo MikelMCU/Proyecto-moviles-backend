@@ -37,8 +37,9 @@ public class UserService {
 
         user = userRepository.save(user);
 
-        // Generar token JWT
-        String token = jwtService.generateToken(user.getId(), user.getEmail());
+        // Generar token JWT ✅ Agregar rol
+        String role = user.getRole() != null ? user.getRole().name() : "USER";
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
 
         return AuthResponseDTO.builder()
                 .token(token)
@@ -59,8 +60,9 @@ public class UserService {
             throw new ResourceNotFoundException("Credenciales inválidas");
         }
 
-        // Generar token JWT
-        String token = jwtService.generateToken(user.getId(), user.getEmail());
+        // Generar token JWT ✅ Agregar rol
+        String role = user.getRole() != null ? user.getRole().name() : "USER";
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), role);
 
         return AuthResponseDTO.builder()
                 .token(token)

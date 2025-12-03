@@ -27,14 +27,15 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // 2. Generar Token
-    public String generateToken(String userId, String email) {
+    // 2. Generar Token CON ROL
+    public String generateToken(String userId, String email, String role) {
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("email", email)
+                .claim("role", role) // ← AGREGAR AQUÍ
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Firma clásica
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -43,7 +44,12 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // 4. Validar Token
+    // 4. Obtener Rol del Token ← NUEVO
+    public String getRoleFromToken(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    // 5. Validar Token
     public boolean isTokenValid(String token, String userId) {
         final String extractedId = getUserIdFromToken(token);
         return (extractedId.equals(userId) && !isTokenExpired(token));
